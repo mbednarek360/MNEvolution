@@ -1,0 +1,1 @@
+Genetic learning algorithm based on generating and mutating nodes that are guessing matricies. Includes a GUI and charts for running and testing generations
