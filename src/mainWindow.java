@@ -1,0 +1,293 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
+
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.Range;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.renderer.xy.XYSplineRenderer;
+
+
+public class mainWindow {
+    private JSpinner tCompIn;
+    private JPanel mainPanel;
+    private JSpinner npgIn;
+    private JSpinner mRateIn;
+    private JButton mainButton;
+    private JTextField datasetIn;
+    private JPanel chartPanel;
+    private JSpinner cRateIn;
+    private JLabel targetOut;
+    private JLabel bestOut;
+    boolean active;
+    int generation;
+    int cRate;
+    int lowLoss;
+    int tComp;
+    int[] best = new int[2];
+    String dataset;
+    char[][] target = {};
+    Node[] nodes = {};
+    int mRate;
+    int npg;
+
+    XYSeriesCollection chartData;
+    XYSeries lossLine;
+    JFreeChart chart;
+    XYSplineRenderer rend;
+
+    public mainWindow() {
+        mainButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startEvolution();
+            }
+        });
+        chartData = new XYSeriesCollection();
+        lossLine = new XYSeries("Loss");
+        chart = ChartFactory.createXYLineChart("Evolution", "Generation", "Loss", chartData);
+        rend = new XYSplineRenderer();
+        rend.setSeriesShapesVisible(0, false);
+        XYPlot plot = (XYPlot)chart.getPlot();
+        NumberAxis range = (NumberAxis)plot.getRangeAxis();
+        //range.setRange(new Range(50000d, 100000d));
+        plot.setRenderer(rend);
+        chartData.addSeries(lossLine);
+        chartPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
+    }
+
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        JFrame frame = new JFrame("MNEvolution");
+        frame.setContentPane(new mainWindow().mainPanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //frame.setSize((int)(screenSize.getWidth()*0.125), (int)(screenSize.getHeight()*0.25));
+        frame.pack();
+        //frame.setResizable(false);
+        frame.setVisible(true);
+    }
+
+    public char[][] genTarget(int comp, String set) {
+        char[][] t = new char[comp][comp];
+        final String alphabet = set;
+        final int N = alphabet.length();
+        for (int i = 0; i < comp; i++) {
+            for (int n = 0; n < comp; n++) {
+                Random r = new Random();
+                t[n][i] = alphabet.charAt(r.nextInt(N));
+            }
+        }
+        return t;
+    }
+
+
+    public void startEvolution() {
+        generation = 1;
+        mRate = (Integer)mRateIn.getValue();
+        npg = (Integer)npgIn.getValue();
+        dataset = datasetIn.getText();
+        tComp = (Integer)tCompIn.getValue();
+        cRate = (Integer)cRateIn.getValue();
+       target = genTarget(tComp, dataset);
+       clearOut();
+       targetOut.setText("<html>Target Matrix:<br>");
+        for (int i = 0; i < target.length; i++) {
+            targetOut.setText(targetOut.getText() + (Arrays.toString(target[i]) + "<br>"));
+        }
+        targetOut.setText(targetOut.getText() + "</html>");
+        nodes = createNodes(npg);
+        lowLoss = (dataset.length() * (tComp ^ 2) * npg);
+        System.out.println(lowLoss);
+        //System.out.println(getLoss(nodes[0].guess));
+        //generate();
+        Thread generator = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                generate();
+        }});
+        generator.start();
+
+
+
+
+
+
+    }
+
+
+    public void clearOut() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    public class Node {
+        public char[][] guess;
+    }
+
+    public int getTotalLoss() {
+        int out = 0;
+        for (int i = 0; i < npg; i++) {
+            out += getLoss(nodes[i].guess);
+        }
+        return out;
+    }
+
+
+    public int dataGap(char a, char b) {
+        int l1 = 0;
+        int l2 = 0;
+        for (int n = 0; n < dataset.length(); n++) {
+            if (dataset.charAt(n) == a) {
+                l1 = n;
+            }
+        }
+        for (int y = 0; y < dataset.length(); y++) {
+            if (dataset.charAt(y) == b) {
+                l2 = y;
+            }
+        }
+        if (l1 > l2) {
+            return (l1-l2);
+        }
+        else if (l1 < l2) {
+            return (l2-l1);
+        }
+        else {
+            return 0;
+        }
+
+    }
+
+    //loss function
+   public int getLoss(char[][] guess) {
+        int dist = 0;
+        for (int m = 0; m < guess.length; m++) {
+            for (int x = 0; x < guess.length; x++) {
+                dist += dataGap(guess[m][x], target[m][x]);
+            }
+        }
+    return dist;
+    }
+
+
+    public Node[] createNodes(int nodeAmount) {
+        Node[] nodeArr = new Node[nodeAmount];
+        //System.out.println();
+        //System.out.println("Nodes:");
+        for(int n = 0; n < npg; n++) {
+            nodeArr[n] = new Node();
+            nodeArr[n].guess = genTarget(tComp, dataset);
+            //System.out.println("Created node #" + (n+1) + ".");
+        }
+        return nodeArr;
+    }
+
+    public void breed() {
+        //get best nodes
+        int temp = getLoss(nodes[0].guess);
+        for (int m = 0; m < npg; m++) {
+            if (getLoss(nodes[m].guess) < temp) {
+                temp = getLoss(nodes[m].guess);
+                best[0] = m;
+            }
+        }
+        if (best[0] < 1) {
+            temp = getLoss(nodes[(best[0] + 1)].guess);
+        }
+        else {
+            temp = getLoss(nodes[(best[0] - 1)].guess);
+        }
+        for (int i = 0; i < npg; i++) {
+            if (getLoss(nodes[i].guess) < temp && i != best[0]) {
+                temp = getLoss(nodes[i].guess);
+                best[1] = i;
+            }
+        }
+        //System.out.println(getTotalLoss() + ":" + lowLoss + ":" + generation); //debug
+        //System.out.println(dataGap('A', 'Z'));
+        if (getTotalLoss() < lowLoss) {
+            lowLoss = getTotalLoss();
+            bestOut.setText("<html>Best Matrix:<br>");
+            for (int i = 0; i < (nodes[(best[0])].guess).length; i++) {
+                bestOut.setText(bestOut.getText() + (Arrays.toString(nodes[(best[0])].guess) + "<br>"));
+            }
+            bestOut.setText(bestOut.getText() + "</html>");
+
+
+        }
+
+
+        //swap guess chars with new nodes
+        char[][] nTemp = nodes[(best[0])].guess;
+        char[][] nTemp1 = nodes[(best[1])].guess;
+        nodes = createNodes(npg);
+
+        for (int l = 0; l < npg; l++) {
+            int r = ThreadLocalRandom.current().nextInt(0, npg);
+            int r1 = ThreadLocalRandom.current().nextInt(0, tComp);
+            int r2 = ThreadLocalRandom.current().nextInt(0, tComp);
+            nodes[r].guess[r1][r2] = nTemp[r1][r2];
+
+        }
+        for (int l = 0; l < npg; l++) {
+            int r = ThreadLocalRandom.current().nextInt(0, npg);
+            int r1 = ThreadLocalRandom.current().nextInt(0, tComp);
+            int r2 = ThreadLocalRandom.current().nextInt(0, tComp);
+            nodes[r].guess[r1][r2] = nTemp1[r1][r2];
+
+        }
+        lossLine.add((double) generation, (double) getTotalLoss());
+        if (generation % cRate == 0) {
+            lossLine.clear();
+        }
+
+
+
+
+
+
+
+    }
+
+
+    /*public void mutate(Node n) {
+
+    }*/
+        public void generate() {
+            while (getTotalLoss() != 0) {
+                breed();
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                generation++;
+
+            }
+        }
+
+
+}
