@@ -20,6 +20,7 @@ import org.jfree.chart.ChartPanel;
 
 
 public class mainWindow {
+    //init jframe variables`
     private JSpinner tCompIn;
     private JPanel mainPanel;
     private JSpinner npgIn;
@@ -39,7 +40,7 @@ public class mainWindow {
     private JCheckBox aRangeCheckIn;
     private JSpinner spacingIn;
 
-    //i know, im sorry
+    //init config variables
     boolean active = false;
     int generation;
     int cRate;
@@ -58,6 +59,7 @@ public class mainWindow {
     int spacing;
     int rRate;
 
+    // init graph variables
     XYSeriesCollection chartData;
     XYSeries lossLine;
     XYSeries minLossLine;
@@ -75,7 +77,7 @@ public class mainWindow {
             }
         });
 
-        //setup graph
+        // setup graph
         chartData = new XYSeriesCollection();
         lossLine = new XYSeries("Loss");
         minLossLine = new XYSeries("Minimum Loss");
@@ -98,7 +100,7 @@ public class mainWindow {
         plot.setRenderer(rend);
 
 
-        //default values
+        // default values
         tCompIn.setValue(10);
         npgIn.setValue(100);
         mRateIn.setValue(0);
@@ -107,11 +109,11 @@ public class mainWindow {
         spacingIn.setValue(450);
 
 
-        //action listeners
+        // action listeners
         clearCheckIn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                //System.out.println(clearEnabled);
+                // toggle auto clear
                 clearEnabled = !clearEnabled;
                 cRateIn.setEnabled(clearEnabled);
             }
@@ -119,6 +121,7 @@ public class mainWindow {
         smoothCheckIn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                // toggle graph renderer
                 smooth = !smooth;
                         if (smooth) {
                             plot.setRenderer(sRend);
@@ -132,6 +135,7 @@ public class mainWindow {
         overlapCheckIn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                // toggle graph shape visibility
                 overlap = !overlap;
                 if (overlap) {
                     rend.setSeriesShapesVisible(1, true);
@@ -144,6 +148,7 @@ public class mainWindow {
         aRangeCheckIn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                // toggle auto range scaling
                 aRange = !aRange;
                 rRateIn.setEnabled(aRange);
 
@@ -152,7 +157,7 @@ public class mainWindow {
     }
 
 
-    //window setup
+    // window setup
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -170,13 +175,11 @@ public class mainWindow {
         frame.setContentPane(new mainWindow().mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        //frame.setSize((int)(screenSize.getWidth()*0.125), (int)(screenSize.getHeight()*0.25));
         frame.pack();
-        //frame.setResizable(false);
         frame.setVisible(true);
     }
 
-
+    // generate random matrix
     public char[][] genTarget(int comp, String set) {
         char[][] t = new char[comp][comp];
         final String alphabet = set;
@@ -190,8 +193,8 @@ public class mainWindow {
         return t;
     }
 
-
     public void startEvolution() {
+        // get input values and set variables
         chartPanel.update(chartPanel.getGraphics());
         generation = 1;
         mRate = (Integer)mRateIn.getValue();
@@ -202,17 +205,21 @@ public class mainWindow {
         rRate = (Integer)rRateIn.getValue();
         spacing = (Integer)spacingIn.getValue();
        target = genTarget(tComp, dataset);
-       clearOut();
+
+       // print target matrix
        targetOut.setText("<html>Target Matrix:<br>");
         for (int i = 0; i < target.length; i++) {
             targetOut.setText(targetOut.getText() + (Arrays.toString(target[i]) + "<br>"));
         }
         targetOut.setText(targetOut.getText() + "</html>");
+
+        // create new node array
         nodes = createNodes(npg);
+
+        // calculate max loss and set it as current lowest
         lowLoss = (dataset.length() * (int)Math.pow(tComp, 2) * npg);
-        //System.out.println(lowLoss);
-        //System.out.println(getLoss(nodes[0].guess));
-        //generate();
+
+        // start evolution thread
         Thread generator = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -222,20 +229,21 @@ public class mainWindow {
 
     }
 
-
+    // clear debug console
     public void clearOut() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 
+    // node class
     public class Node {
         public char[][] guess;
     }
 
+    // tabulate loss of all nodes in a generation
     public int getTotalLoss() {
         int out = 0;
         for (int i = 0; i < npg; i++) {
@@ -244,7 +252,7 @@ public class mainWindow {
         return out;
     }
 
-
+    // get difference between to charectars in the input dataset
     public int dataGap(char a, char b) {
         int l1 = 0;
         int l2 = 0;
@@ -270,7 +278,7 @@ public class mainWindow {
 
     }
 
-    //loss function
+    // loss function
    public int getLoss(char[][] guess) {
         int dist = 0;
         for (int m = 0; m < guess.length; m++) {
@@ -281,21 +289,18 @@ public class mainWindow {
     return dist;
     }
 
-
+    // create new node array and fill with random guesses
     public Node[] createNodes(int nodeAmount) {
         Node[] nodeArr = new Node[nodeAmount];
-        //System.out.println();
-        //System.out.println("Nodes:");
         for(int n = 0; n < npg; n++) {
             nodeArr[n] = new Node();
             nodeArr[n].guess = genTarget(tComp, dataset);
-            //System.out.println("Created node #" + (n+1) + ".");
         }
         return nodeArr;
     }
 
     public void breed() {
-        //get best nodes
+        // get best nodes
         int temp = getLoss(nodes[0].guess);
         for (int m = 0; m < npg; m++) {
             if (getLoss(nodes[m].guess) < temp) {
@@ -315,9 +320,8 @@ public class mainWindow {
                 best[1] = i;
             }
         }
-        //System.out.println(getTotalLoss() + ":" + lowLoss + ":" + generation); //debug
-        //System.out.println(dataGap('A', 'Z'));
-        //System.out.println(best[0]);
+
+        // check if new lowest loss per generation
         if (getTotalLoss() < lowLoss) {
             lowLoss = getTotalLoss();
             bestOut.setText("<html>Best Matrix:<br>");
@@ -331,7 +335,7 @@ public class mainWindow {
         }
 
 
-        //swap guess chars with new nodes
+        // swap guess chars with new nodes guess chars randomly
         char[][] nTemp = nodes[(best[0])].guess;
         char[][] nTemp1 = nodes[(best[1])].guess;
         nodes = createNodes(npg);
@@ -353,6 +357,7 @@ public class mainWindow {
 
         lossLine.add((double) generation, (double) getTotalLoss());
 
+        // clear graph if enabled and on x generation
         if (clearEnabled) {
 
             if (generation % cRate == 0) {
@@ -361,6 +366,7 @@ public class mainWindow {
             }
         }
 
+        // scale graph if enabled and on x generation
         if (aRange) {
 
             if (generation % rRate == 0 || generation == 1) {
@@ -370,19 +376,10 @@ public class mainWindow {
 
     }
 
-
-    /*public void mutate(Node n) {
-
-    }*/
+        // loop breed function and iterate generation until matrix match foundd
         public void generate() {
             while (getTotalLoss() != 0) {
                 breed();
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
                 generation++;
 
             }
