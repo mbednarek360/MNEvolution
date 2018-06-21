@@ -2,7 +2,7 @@
 
 ### Genetic learning algorithm based on generating and mutating nodes trained off of matricies.
 
-#### ⚠MNEvolution is still in alpha, can be very buggy and unoptomized. Updates will come.⚠️
+#### ⚠MNEvolution is still in alpha, it can be very buggy and unoptomized. Updates will come.⚠️
 
 ##### MNEvolution includes a GUI for training, monitoring loss, and adjusting settings.
 
