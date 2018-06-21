@@ -66,6 +66,7 @@ public class mainWindow {
     XYLineAndShapeRenderer rend;
     NumberAxis range;
 
+
     public mainWindow() {
         mainButton.addActionListener(new ActionListener() {
             @Override
@@ -151,8 +152,6 @@ public class mainWindow {
     }
 
 
-
-
     //window setup
     public static void main(String[] args) {
         try {
@@ -176,8 +175,6 @@ public class mainWindow {
         //frame.setResizable(false);
         frame.setVisible(true);
     }
-
-
 
 
     public char[][] genTarget(int comp, String set) {
@@ -222,11 +219,6 @@ public class mainWindow {
                 generate();
         }});
         generator.start();
-
-
-
-
-
 
     }
 
@@ -376,12 +368,6 @@ public class mainWindow {
             }
         }
 
-
-
-
-
-
-
     }
 
 
@@ -401,6 +387,5 @@ public class mainWindow {
 
             }
         }
-
 
 }
