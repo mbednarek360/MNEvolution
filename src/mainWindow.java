@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,19 +7,16 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.Random;
 import java.awt.Color;
 
+import org.jfree.data.Range;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.Range;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYSplineRenderer;
 
 
 public class mainWindow {
@@ -39,12 +34,17 @@ public class mainWindow {
     private JLabel bestNodeOut;
     private JCheckBox clearCheckIn;
     private JCheckBox smoothCheckIn;
+    private JCheckBox overlapCheckIn;
+    private JSpinner rRateIn;
+    private JCheckBox aRangeCheckIn;
+    private JSpinner spacingIn;
 
     //i know, im sorry
     boolean active = false;
     int generation;
     int cRate;
     boolean smooth = false;
+    boolean aRange = true;
     int lowLoss;
     boolean clearEnabled = true;
     int tComp;
@@ -54,6 +54,9 @@ public class mainWindow {
     Node[] nodes = {};
     int mRate;
     int npg;
+    boolean overlap = true;
+    int spacing;
+    int rRate;
 
     XYSeriesCollection chartData;
     XYSeries lossLine;
@@ -61,6 +64,7 @@ public class mainWindow {
     JFreeChart chart;
     XYSplineRenderer sRend;
     XYLineAndShapeRenderer rend;
+    NumberAxis range;
 
     public mainWindow() {
         mainButton.addActionListener(new ActionListener() {
@@ -69,20 +73,20 @@ public class mainWindow {
                 startEvolution();
             }
         });
+
+        //setup graph
         chartData = new XYSeriesCollection();
         lossLine = new XYSeries("Loss");
         minLossLine = new XYSeries("Minimum Loss");
         chart = ChartFactory.createXYLineChart("Evolution", "Generation", "Loss", chartData);
         sRend = new XYSplineRenderer();
         sRend.setSeriesShapesVisible(0, false);
-        sRend.setSeriesShapesVisible(1, false);
+        sRend.setSeriesShapesVisible(1, true);
         rend =  new XYLineAndShapeRenderer();
         rend.setSeriesShapesVisible(0, false);
-        rend.setSeriesShapesVisible(1, false);
+        rend.setSeriesShapesVisible(1, true);
         XYPlot plot = (XYPlot)chart.getPlot();
-        NumberAxis range = (NumberAxis)plot.getRangeAxis();
-        //range.setRange(new Range(50000d, 100000d));
-
+        range = (NumberAxis)plot.getRangeAxis();
         chartData.addSeries(lossLine);
         chartData.addSeries(minLossLine);
         chartPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
@@ -90,16 +94,25 @@ public class mainWindow {
         sRend.setSeriesPaint(1, new Color(255,0,0));
         rend.setSeriesPaint(0, new Color(0,0,255));
         rend.setSeriesPaint(1, new Color(255,0,0));
-
         plot.setRenderer(rend);
 
+
+        //default values
+        tCompIn.setValue(10);
+        npgIn.setValue(100);
+        mRateIn.setValue(0);
+        rRateIn.setValue(1000);
+        cRateIn.setValue(10000);
+        spacingIn.setValue(450);
+
+
+        //action listeners
         clearCheckIn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 //System.out.println(clearEnabled);
                 clearEnabled = !clearEnabled;
                 cRateIn.setEnabled(clearEnabled);
-                cRateIn.update(cRateIn.getGraphics());
             }
         });
         smoothCheckIn.addActionListener(new ActionListener() {
@@ -114,8 +127,33 @@ public class mainWindow {
                         }
             }
         });
+
+        overlapCheckIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                overlap = !overlap;
+                if (overlap) {
+                    rend.setSeriesShapesVisible(1, true);
+                }
+                else {
+                    rend.setSeriesShapesVisible(1, false);
+                }
+            }
+        });
+        aRangeCheckIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                aRange = !aRange;
+                rRateIn.setEnabled(aRange);
+
+            }
+        });
     }
 
+
+
+
+    //window setup
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -139,6 +177,9 @@ public class mainWindow {
         frame.setVisible(true);
     }
 
+
+
+
     public char[][] genTarget(int comp, String set) {
         char[][] t = new char[comp][comp];
         final String alphabet = set;
@@ -154,12 +195,15 @@ public class mainWindow {
 
 
     public void startEvolution() {
+        chartPanel.update(chartPanel.getGraphics());
         generation = 1;
         mRate = (Integer)mRateIn.getValue();
         npg = (Integer)npgIn.getValue();
         dataset = datasetIn.getText();
         tComp = (Integer)tCompIn.getValue();
         cRate = (Integer)cRateIn.getValue();
+        rRate = (Integer)rRateIn.getValue();
+        spacing = (Integer)spacingIn.getValue();
        target = genTarget(tComp, dataset);
        clearOut();
        targetOut.setText("<html>Target Matrix:<br>");
@@ -190,6 +234,10 @@ public class mainWindow {
     public void clearOut() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
     }
 
     public class Node {
@@ -318,6 +366,13 @@ public class mainWindow {
             if (generation % cRate == 0) {
                 lossLine.clear();
                 minLossLine.clear();
+            }
+        }
+
+        if (aRange) {
+
+            if (generation % rRate == 0 || generation == 1) {
+                range.setRange(new Range(lowLoss - spacing, (getTotalLoss() + spacing)));
             }
         }
 
