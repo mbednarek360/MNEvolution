@@ -1,20 +1,26 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Random;
+import java.awt.Color;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.Range;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
 
 
@@ -29,10 +35,18 @@ public class mainWindow {
     private JSpinner cRateIn;
     private JLabel targetOut;
     private JLabel bestOut;
-    boolean active;
+    private JLabel bestGenOut;
+    private JLabel bestNodeOut;
+    private JCheckBox clearCheckIn;
+    private JCheckBox smoothCheckIn;
+
+    //i know, im sorry
+    boolean active = false;
     int generation;
     int cRate;
+    boolean smooth = false;
     int lowLoss;
+    boolean clearEnabled = true;
     int tComp;
     int[] best = new int[2];
     String dataset;
@@ -43,8 +57,10 @@ public class mainWindow {
 
     XYSeriesCollection chartData;
     XYSeries lossLine;
+    XYSeries minLossLine;
     JFreeChart chart;
-    XYSplineRenderer rend;
+    XYSplineRenderer sRend;
+    XYLineAndShapeRenderer rend;
 
     public mainWindow() {
         mainButton.addActionListener(new ActionListener() {
@@ -55,15 +71,49 @@ public class mainWindow {
         });
         chartData = new XYSeriesCollection();
         lossLine = new XYSeries("Loss");
+        minLossLine = new XYSeries("Minimum Loss");
         chart = ChartFactory.createXYLineChart("Evolution", "Generation", "Loss", chartData);
-        rend = new XYSplineRenderer();
+        sRend = new XYSplineRenderer();
+        sRend.setSeriesShapesVisible(0, false);
+        sRend.setSeriesShapesVisible(1, false);
+        rend =  new XYLineAndShapeRenderer();
         rend.setSeriesShapesVisible(0, false);
+        rend.setSeriesShapesVisible(1, false);
         XYPlot plot = (XYPlot)chart.getPlot();
         NumberAxis range = (NumberAxis)plot.getRangeAxis();
         //range.setRange(new Range(50000d, 100000d));
-        plot.setRenderer(rend);
+
         chartData.addSeries(lossLine);
+        chartData.addSeries(minLossLine);
         chartPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
+        sRend.setSeriesPaint(0, new Color(0,0,255));
+        sRend.setSeriesPaint(1, new Color(255,0,0));
+        rend.setSeriesPaint(0, new Color(0,0,255));
+        rend.setSeriesPaint(1, new Color(255,0,0));
+
+        plot.setRenderer(rend);
+
+        clearCheckIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                //System.out.println(clearEnabled);
+                clearEnabled = !clearEnabled;
+                cRateIn.setEnabled(clearEnabled);
+                cRateIn.update(cRateIn.getGraphics());
+            }
+        });
+        smoothCheckIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                smooth = !smooth;
+                        if (smooth) {
+                            plot.setRenderer(sRend);
+                        }
+                        else {
+                            plot.setRenderer(rend);
+                        }
+            }
+        });
     }
 
     public static void main(String[] args) {
@@ -118,8 +168,8 @@ public class mainWindow {
         }
         targetOut.setText(targetOut.getText() + "</html>");
         nodes = createNodes(npg);
-        lowLoss = (dataset.length() * (tComp ^ 2) * npg);
-        System.out.println(lowLoss);
+        lowLoss = (dataset.length() * (int)Math.pow(tComp, 2) * npg);
+        //System.out.println(lowLoss);
         //System.out.println(getLoss(nodes[0].guess));
         //generate();
         Thread generator = new Thread(new Runnable() {
@@ -227,15 +277,17 @@ public class mainWindow {
         }
         //System.out.println(getTotalLoss() + ":" + lowLoss + ":" + generation); //debug
         //System.out.println(dataGap('A', 'Z'));
+        //System.out.println(best[0]);
         if (getTotalLoss() < lowLoss) {
             lowLoss = getTotalLoss();
             bestOut.setText("<html>Best Matrix:<br>");
+            bestGenOut.setText("Gen: " + generation);
+            bestNodeOut.setText("Node: " + (best[0]+1));
             for (int i = 0; i < (nodes[(best[0])].guess).length; i++) {
-                bestOut.setText(bestOut.getText() + (Arrays.toString(nodes[(best[0])].guess) + "<br>"));
+                bestOut.setText(bestOut.getText() + (Arrays.toString(nodes[(best[0])].guess[i]) + "<br>"));
             }
             bestOut.setText(bestOut.getText() + "</html>");
-
-
+            minLossLine.add((double)generation, (double)getTotalLoss());
         }
 
 
@@ -258,9 +310,15 @@ public class mainWindow {
             nodes[r].guess[r1][r2] = nTemp1[r1][r2];
 
         }
+
         lossLine.add((double) generation, (double) getTotalLoss());
-        if (generation % cRate == 0) {
-            lossLine.clear();
+
+        if (clearEnabled) {
+
+            if (generation % cRate == 0) {
+                lossLine.clear();
+                minLossLine.clear();
+            }
         }
 
 
