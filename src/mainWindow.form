@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="mainWindow">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="19" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="27" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="5" left="5" bottom="5" right="5"/>
     <constraints>
-      <xy x="20" y="20" width="1310" height="958"/>
+      <xy x="20" y="20" width="1831" height="1091"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -44,7 +44,7 @@
         </constraints>
         <properties>
           <labelFor value="188e8"/>
-          <text value="Node Mutation Rate"/>
+          <text value="Node Mutation Rate:"/>
         </properties>
       </component>
       <component id="188e8" class="javax.swing.JSpinner" binding="mRateIn">
@@ -55,7 +55,7 @@
       </component>
       <component id="63b38" class="javax.swing.JButton" binding="mainButton">
         <constraints>
-          <grid row="18" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="26" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Start"/>
@@ -82,7 +82,7 @@
       </component>
       <grid id="8c0af" binding="chartPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="0" column="0" row-span="19" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+          <grid row="0" column="0" row-span="27" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <minimum-size width="750" height="500"/>
             <preferred-size width="750" height="500"/>
           </grid>
@@ -95,21 +95,23 @@
       </grid>
       <component id="926c5" class="javax.swing.JLabel">
         <constraints>
-          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Chart Clear Rate"/>
+          <text value="Graph Clear Frequency"/>
         </properties>
       </component>
       <component id="1c9f8" class="javax.swing.JSpinner" binding="cRateIn">
         <constraints>
-          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="13" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
+        <properties>
+          <enabled value="true"/>
+        </properties>
       </component>
       <component id="9d877" class="javax.swing.JLabel" binding="targetOut">
         <constraints>
-          <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="20" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <font name="Monospaced"/>
@@ -121,7 +123,7 @@
       </component>
       <component id="9c1a6" class="javax.swing.JLabel" binding="bestOut">
         <constraints>
-          <grid row="13" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="21" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <font name="Monospaced"/>
@@ -130,7 +132,7 @@
       </component>
       <component id="fa1b1" class="javax.swing.JCheckBox" binding="clearCheckIn">
         <constraints>
-          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="15" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <selected value="true"/>
@@ -139,32 +141,78 @@
       </component>
       <component id="4382" class="javax.swing.JLabel" binding="bestGenOut">
         <constraints>
-          <grid row="14" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="22" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Gen: "/>
+          <text value="From Generation: "/>
         </properties>
       </component>
       <component id="41966" class="javax.swing.JLabel" binding="bestNodeOut">
         <constraints>
-          <grid row="15" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="23" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Node:"/>
+          <text value="From Node:"/>
         </properties>
       </component>
       <vspacer id="a6591">
         <constraints>
-          <grid row="16" column="1" row-span="2" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="24" column="1" row-span="2" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
+      <component id="2afca" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Graph Range Update Frequency:"/>
+        </properties>
+      </component>
+      <component id="4b2d7" class="javax.swing.JSpinner" binding="rRateIn">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="5d719" class="javax.swing.JCheckBox" binding="aRangeCheckIn">
+        <constraints>
+          <grid row="14" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Automatic Range"/>
+        </properties>
+      </component>
       <component id="22bd0" class="javax.swing.JCheckBox" binding="smoothCheckIn">
         <constraints>
-          <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="17" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Smooth Graph"/>
         </properties>
+      </component>
+      <component id="10e01" class="javax.swing.JCheckBox" binding="overlapCheckIn">
+        <constraints>
+          <grid row="16" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Show Overlap"/>
+        </properties>
+      </component>
+      <component id="2da8e" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Graph Range Buffer:"/>
+        </properties>
+      </component>
+      <component id="9e3b3" class="javax.swing.JSpinner" binding="spacingIn">
+        <constraints>
+          <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
       </component>
     </children>
   </grid>
