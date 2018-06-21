@@ -65,6 +65,7 @@ public class mainWindow {
     XYSeries minLossLine;
     JFreeChart chart;
     XYSplineRenderer sRend;
+    XYPlot plot;
     XYLineAndShapeRenderer rend;
     NumberAxis range;
 
@@ -88,7 +89,7 @@ public class mainWindow {
         rend =  new XYLineAndShapeRenderer();
         rend.setSeriesShapesVisible(0, false);
         rend.setSeriesShapesVisible(1, true);
-        XYPlot plot = (XYPlot)chart.getPlot();
+        plot = (XYPlot)chart.getPlot();
         range = (NumberAxis)plot.getRangeAxis();
         chartData.addSeries(lossLine);
         chartData.addSeries(minLossLine);
