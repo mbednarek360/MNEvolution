@@ -2,9 +2,8 @@
 
 ### Genetic learning algorithm based on generating and mutating nodes that are guessing matricies.
 
-##### ⚠Still in alpha, can be very buggy and unoptomized.⚠️
+##### ⚠Still in alpha, can be very buggy and unoptomized. Updates will come.⚠️
 
 MNEvolution includes a GUI for training and monitoring loss and adjusting settings.
 
-
-
+![GUI](https://gitlab.com/mbednarek360/MNEvolution/raw/master/GUI%20Screenshot.png)
