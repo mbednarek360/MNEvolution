@@ -20,7 +20,7 @@ import org.jfree.chart.ChartPanel;
 
 
 public class mainWindow {
-    //init jframe variables`
+    //init jframe variables
     private JSpinner tCompIn;
     private JPanel mainPanel;
     private JSpinner npgIn;
