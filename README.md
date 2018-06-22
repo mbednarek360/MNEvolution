@@ -1,6 +1,6 @@
 # MNEvolution
 
-### Genetic learning algorithm based on generating and mutating nodes trained off of matricies.
+### Genetic learning algorithm based on generating and mutating nodes trained off of matrices.
 
 #### ⚠MNEvolution is still in alpha, it can be very buggy and unoptomized. Updates will come.⚠️
 
