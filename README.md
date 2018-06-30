@@ -6,4 +6,7 @@
 
 ##### MNEvolution includes a GUI for training, monitoring loss, and adjusting settings.
 
+---
+Image of GUI:
+
 ![GUI](https://gitlab.com/mbednarek360/MNEvolution/raw/master/GUI%20Screenshot.png)
