@@ -4,7 +4,7 @@
 
 #### ⚠MNEvolution is still in alpha, it can be very buggy and unoptomized. Updates will come.⚠️
 
-##### MNEvolution includes a gui for training, monitoring loss, and adjusting settings.
+##### MNEvolution includes a GUI for training, monitoring loss, and adjusting settings.
 
 ---
 Image of GUI:
