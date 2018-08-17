@@ -42,6 +42,7 @@ public class mainWindow {
 
     //init config variables
     boolean active = false;
+    boolean finished = false;
     int generation;
     int cRate;
     boolean smooth = false;
@@ -102,9 +103,9 @@ public class mainWindow {
 
 
         // default values
-        tCompIn.setValue(10);
-        npgIn.setValue(100);
-        mRateIn.setValue(0);
+        tCompIn.setValue(4);
+        npgIn.setValue(250);
+        mRateIn.setValue(5);
         rRateIn.setValue(1000);
         cRateIn.setValue(10000);
         spacingIn.setValue(450);
@@ -124,12 +125,12 @@ public class mainWindow {
             public void actionPerformed(ActionEvent actionEvent) {
                 // toggle graph renderer
                 smooth = !smooth;
-                        if (smooth) {
-                            plot.setRenderer(sRend);
-                        }
-                        else {
-                            plot.setRenderer(rend);
-                        }
+                if (smooth) {
+                    plot.setRenderer(sRend);
+                }
+                else {
+                    plot.setRenderer(rend);
+                }
             }
         });
 
@@ -205,10 +206,10 @@ public class mainWindow {
         cRate = (Integer)cRateIn.getValue();
         rRate = (Integer)rRateIn.getValue();
         spacing = (Integer)spacingIn.getValue();
-       target = genTarget(tComp, dataset);
+        target = genTarget(tComp, dataset);
 
-       // print target matrix
-       targetOut.setText("<html>Target Matrix:<br>");
+        // print target matrix
+        targetOut.setText("<html>Target Matrix:<br>");
         for (int i = 0; i < target.length; i++) {
             targetOut.setText(targetOut.getText() + (Arrays.toString(target[i]) + "<br>"));
         }
@@ -225,7 +226,7 @@ public class mainWindow {
             @Override
             public void run() {
                 generate();
-        }});
+            }});
         generator.start();
 
     }
@@ -280,14 +281,14 @@ public class mainWindow {
     }
 
     // loss function
-   public int getLoss(char[][] guess) {
+    public int getLoss(char[][] guess) {
         int dist = 0;
         for (int m = 0; m < guess.length; m++) {
             for (int x = 0; x < guess.length; x++) {
                 dist += dataGap(guess[m][x], target[m][x]);
             }
         }
-    return dist;
+        return dist;
     }
 
     // create new node array and fill with random guesses
@@ -333,6 +334,9 @@ public class mainWindow {
             }
             bestOut.setText(bestOut.getText() + "</html>");
             minLossLine.add((double)generation, (double)getTotalLoss());
+            if (getLoss(nodes[(best[0])].guess) == 0) {
+                finished = true;
+            }
         }
 
 
@@ -377,13 +381,28 @@ public class mainWindow {
 
     }
 
-        // loop breed function and iterate generation until matrix match foundd
-        public void generate() {
-            while (getTotalLoss() != 0) {
-                breed();
-                generation++;
-
-            }
+    public void mutate() {
+        for (int i = 0; i < (npg * (mRate / 100)); i++) {
+            char[][] t = genTarget(tComp, dataset);
+            Node[] nTemp;
+            int r = ThreadLocalRandom.current().nextInt(0, npg);
+            int r1 = ThreadLocalRandom.current().nextInt(0, tComp);
+            int r2 = ThreadLocalRandom.current().nextInt(0, tComp);
+            nodes[r].guess[r1][r2] = t[r1][r2];
         }
+    }
+
+    // loop breed function and iterate generation until matrix match foundd
+    public void generate() {
+        while (!finished) {
+            breed();
+            mutate();
+            generation++;
+
+        }
+        //runs after evolution complete
+        System.out.println("done");
+
+    }
 
 }
