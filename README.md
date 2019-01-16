@@ -9,4 +9,4 @@
 ---
 Image of GUI:
 
-![GUI](https://gitlab.com/mbednarek360/MNEvolution/raw/master/GUI%20Screenshot.png)
+![GUI](https://github.com/mbednarek360/MNEvolution/raw/master/GUI%20Screenshot.png)
